@@ -20,18 +20,26 @@ export default {
   color: #2c3e50;
   margin-top: 60px;
 }
-.item-icon {
+/* .item-label {
   display: table-cell;
   width: 50px;
-  height: 50px;
-  line-height: 50px;
+  height: 30px;
+  line-height: 30px;
 }
 .item-bar {
   display: table-cell;
-  width: 400px;
-  height: 50px;
+  height: 30px;
 }
 .item-value {
   display: table-cell;
+  text-align: left;
+  padding: 10px;
 }
+.item-icon {
+  margin: auto;
+}
+.item {
+  display: inline;
+  margin: 10px;
+} */
 </style>

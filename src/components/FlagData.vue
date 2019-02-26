@@ -295,12 +295,12 @@ const labelInfo = {
   'Yemen,  Rep.': {img: 'https://www.countryflags.io/ye/flat/64.png'},
   'Zambia': {img: 'https://www.countryflags.io/zm/flat/64.png'},
   'Zimbabwe': {img: 'https://www.countryflags.io/zw/flat/64.png'},
-  'Åland Islands': {img: 'https://www.countryflags.io/ax/flat/64.png'},
+  'Åland Islands': {img: 'https://www.countryflags.io/ax/flat/64.png'}
 }
 
-let i = 0;
+let i = 0
 for (const key in labelInfo) {
-  labelInfo[key].color = colors[(i++)%colors.length]
+  labelInfo[key].color = colors[(i++) % colors.length]
 }
 
 export default labelInfo

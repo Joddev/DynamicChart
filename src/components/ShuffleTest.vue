@@ -1,5 +1,7 @@
 <template>
-  <div id="container" class="item-container" style="height: 500px"></div>
+  <div id="container" class="item-container" style="height: 500px">
+    <div id="year" class="year">2017</div>
+  </div>
 </template>
 
 <script>
@@ -70,15 +72,16 @@ const elements = {}
 const elementList = []
 
 const createElement = (data) => {
-  let value = 0
-  if (data.value !== '-') value = Number(Number(data.value).toFixed(2))
-  elements[data.label] = {
-    value: value,
-    node: createNode(data)
+  if (data.value !== '-') {
+    data.value = Number(Number(data.value).toFixed(2))
+    elements[data.label] = {
+      value: data.value,
+      node: createNode(data)
+    }
+    const node = elements[data.label].node
+    instance.element.appendChild(node)
+    instance.add([node])
   }
-  const node = elements[data.label].node
-  instance.element.appendChild(node)
-  instance.add([node])
 }
 
 function getRandomColor () {
@@ -100,8 +103,7 @@ const createNode = (data) => {
   try {
     color = labelInfo[data.label].color
     img = labelInfo[data.label].img
-  }
-  catch(err) {
+  } catch (err) {
     console.log(data.label)
     color = getRandomColor()
     img = 'https://banner2.kisspng.com/20171216/0a6/question-mark-png-5a352b58b02c08.4921308315134339447216.jpg'
@@ -121,7 +123,7 @@ const createNode = (data) => {
 }
 
 const getNodeValue = (node) => {
-  return Number(node.children[3].innerHTML)
+  return Number(node.children[3].innerHTML) - 77
 }
 
 const setNodeValue = (node, value) => {
@@ -129,8 +131,7 @@ const setNodeValue = (node, value) => {
 }
 
 const top = 15
-let prevMax = 0
-const setWidth = (node) => {
+const setWidth = () => {
   const newList = elementList.concat().sort(function(n1, n2) {
     return getNodeValue(n2) - getNodeValue(n1)
   })
@@ -147,8 +148,11 @@ const setWidth = (node) => {
         // instance.add([element])
       }
     } else {
-      if (element.style.display !== 'none') {
+      if (element.style.opacity === 0) {
         element.style.display = 'none'
+      } else if (element.style.display !== 'none') {
+        // element.style.display = 'none'
+        element.style.opacity = 0
         // if (element.parentNode != null) instance.remove([element])
       }
     }
@@ -167,10 +171,13 @@ export default {
   mounted () {
     instance = new Shuffle(document.getElementById('container'), {
       itemSelector: '.item',
-      columnWidth: 2
+      speed: 1000
     })
 
     // Initial value
+    const years = []
+    for (let i = 1999; i <= 2016; i++) years.push(i)
+    document.getElementById('year').textContent = years[0]
     for (const i in data[0]) {
       const curData = data[0][i]
       createElement(curData)
@@ -183,10 +190,13 @@ export default {
       },
       reverse: true
     })
-    const intervalRange = 10 * 1000
+    const intervalRange = 8 * 1000
     let index = 1
     const interval = setInterval(() => {
       if (index < data.length) {
+        document.getElementById('year').textContent = years[index]
+        const fromTweening = {}
+        const toTweening = {}
         for (const i in data[index]) {
           const curData = data[index][i]
           let prevData = elements[curData.label]
@@ -199,23 +209,38 @@ export default {
             prevData = elements[curData.label]
           }
           if (curData.value !== '-') {
-            const tweening = {value: prevData.value}
-            new TWEEN.Tween(tweening)
-              .to({value: curData.value}, intervalRange * 0.99)
-              // .easing(TWEEN.Easing.Quadratic.Out)
-              // .easing(TWEEN.Easing.Quadratic.InOut)
-              .easing(TWEEN.Easing.Linear.None)
-              .onUpdate(() => {
-                // if (curData.label === 'A') {
-                //   console.log(Number(tweening.value.toFixed(0)) - Number(prevData.value))
-                // }
-                prevData.value = Number(tweening.value.toFixed(2))
-                setNodeValue(prevData.node, prevData.value)
-                setWidth()
-              })
-              .start()
+            fromTweening[curData.label] = prevData.value
+            toTweening[curData.label] = curData.value
+
+            // const tweening = {value: prevData.value}
+            // new TWEEN.Tween(tweening)
+            //   .to({value: curData.value}, intervalRange * 0.99)
+            //   // .easing(TWEEN.Easing.Quadratic.Out)
+            //   // .easing(TWEEN.Easing.Quadratic.InOut)
+            //   .easing(TWEEN.Easing.Linear.None)
+            //   .onUpdate(() => {
+            //     // if (curData.label === 'A') {
+            //     //   console.log(Number(tweening.value.toFixed(0)) - Number(prevData.value))
+            //     // }
+            //     prevData.value = Number(tweening.value.toFixed(2))
+            //     setNodeValue(prevData.node, prevData.value)
+            //     setWidth()
+            //   })
+            //   .start()
           }
         }
+        new TWEEN.Tween(fromTweening)
+          .to(toTweening, intervalRange * 0.99)
+          .easing(TWEEN.Easing.Linear.None)
+          .onUpdate(() => {
+            for (const label in fromTweening) {
+              const value = Number(fromTweening[label].toFixed(2))
+              elements[label].value = value
+              setNodeValue(elements[label].node, value)
+            }
+            setWidth()
+          })
+          .start()
       } else {
         clearInterval(interval)
       }
@@ -229,7 +254,7 @@ export default {
         },
         reverse: true
       })
-    }, 100)
+    }, 200)
   }
 }
 </script>
@@ -243,6 +268,8 @@ export default {
     width: 200px;
     height: 30px;
     line-height: 30px;
+    text-align: right;
+    padding-right: 10px;
   }
   .item-bar {
     display: table-cell;
@@ -269,11 +296,21 @@ export default {
     display: inline-block;
   }
   .item-icon img {
-    width: 30px;
+    width: 40px;
     position: absolute;
   }
   .item {
+    font-size: 25px;
+    font-weight: 600;
     display: inline;
     margin: 10px;
+  }
+  .year {
+    position: absolute;
+    top: 800px;
+    right: 300px;
+    font-size: 100px;
+    z-index: 20;
+    font-weight: 600;
   }
 </style>

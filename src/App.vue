@@ -1,6 +1,9 @@
 <template>
   <div id="app">
-    <img src="./assets/logo.png">
+    <img class="background" src="./assets/colorful-world.png">
+    <div class="title">
+      <h1>Top 15 Life Expectancy At Birth</h1>
+    </div>
     <router-view/>
   </div>
 </template>
@@ -19,6 +22,16 @@ export default {
   text-align: center;
   color: #2c3e50;
   margin-top: 60px;
+}
+.background {
+  position: absolute;
+  left: 5%;
+  width: 85%;
+  z-index: -3;
+  opacity: 0.5;
+}
+.title {
+  font-size: 40px
 }
 /* .item-label {
   display: table-cell;

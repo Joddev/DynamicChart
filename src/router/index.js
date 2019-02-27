@@ -1,16 +1,21 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-// import test from '@/components/Graph'
-import test from '../components/LifeExpectancy.vue'
+import lifeExpectancy from '../components/LifeExpectancy.vue'
+import urbanPopulation from '../components/UrbanPopulation'
 
 Vue.use(Router)
 
 export default new Router({
   routes: [
     {
+      path: '/A',
+      name: 'life-expectancy',
+      component: lifeExpectancy
+    },
+    {
       path: '/',
-      name: 'Graph',
-      component: test
+      name: 'urban-population',
+      component: urbanPopulation
     }
   ]
 })

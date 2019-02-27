@@ -1,5 +1,5 @@
 <template>
-  <div id="app">
+  <div>
     <img class="background" src="../assets/colorful-world.png">
     <div class="title">
       <h1>Top 15 Life Expectancy At Birth</h1>
@@ -12,8 +12,6 @@
 import stats from '../data/lifeExpectancy'
 import labelInfo from '../data/flagInfo'
 import chart from './VarativeChart.vue'
-
-console.log(stats)
 
 export default {
   name: 'life-expectancy',

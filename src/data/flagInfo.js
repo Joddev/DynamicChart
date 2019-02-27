@@ -1,9 +1,9 @@
-<script>
 const colors = [
   '#e68686', '#e6af86', '#a6e686', '#86e6a4', '#86e6d5', '#86a7e6', '#9e86e6', '#c686e6', '#e686da',
   '#ab4444', '#ab9044', '#45a061', '#45a0a0', '#2dbfbf', '#2d89bf', '#7ac0e8', '#8d97bd', '#7a52dc',
   '#b065b1', '#d84a4a', '#d84a4a', '#dadc47', '#47d635', '#7ed274'
 ]
+
 const labelInfo = {
   '': {img: 'https://www.countryflags.io/xk/flat/64.png'},
   'Afghanistan': {img: 'https://www.countryflags.io/af/flat/64.png'},
@@ -304,4 +304,3 @@ for (const key in labelInfo) {
 }
 
 export default labelInfo
-</script>

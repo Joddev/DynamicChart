@@ -1,9 +1,5 @@
 <template>
   <div id="app">
-    <img class="background" src="./assets/colorful-world.png">
-    <div class="title">
-      <h1>Top 15 Life Expectancy At Birth</h1>
-    </div>
     <router-view/>
   </div>
 </template>

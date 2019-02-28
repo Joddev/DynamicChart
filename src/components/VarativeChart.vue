@@ -46,6 +46,10 @@ export default {
     scale: {
       type: Number,
       default: 500000000
+    },
+    maximum: {
+      type: Number,
+      default: 0
     }
   },
   data: function () {
@@ -66,16 +70,21 @@ export default {
       const label = node.children[0].textContent
       return this.elementMap[label].value
     },
+    getWidth: function (cur, max) {
+      const maximum = Math.max(max, this.maximum)
+      const maxWidth = 1600
+      const tailWidth = 200
+      return ((cur / max) * maxWidth + (cur / maximum) * tailWidth).toFixed(2)
+    },
     setWidth: function () {
       const newList = this.elementList.concat().sort((n1, n2) => {
         return this.getNodeValue(n2) - this.getNodeValue(n1)
       })
       const max = this.getNodeValue(newList[0])
-      const maxWidth = 1800
       for (let i = 0; i < newList.length; i++) {
         const element = newList[i]
         if (i < this.limit) {
-          const width = ((this.getNodeValue(element) / max) * maxWidth).toFixed(2)
+          const width = this.getWidth(this.getNodeValue(element), max)
           element.children[1].style.width = width + 'px'
           if (width - 55 < element.children[2].children[0].offsetWidth) {
             element.children[2].children[0].children[0].style.opacity = 0
@@ -105,7 +114,6 @@ export default {
         start = this.scaleList[this.scaleList.length - 1].value + this.scaleUnit
       }
       for (let value = start; value < max * 1.1; value += this.scaleUnit) {
-        console.log(value)
         const element = this.createScale(value)
         this.scaleList.push({
           value: value,
@@ -125,7 +133,7 @@ export default {
         if (scale.value > max * 1.1) scale.node.style.display = 'none'
         else {
           scale.node.style.display = ''
-          scale.node.style.left = ((scale.value / max) * maxWidth) + leftMargin + 'px'
+          scale.node.style.left = Number(this.getWidth(scale.value, max)) + leftMargin + 'px'
         }
       }
     },
@@ -231,6 +239,9 @@ export default {
             fromTweening[curData.label] = prevData.value
             toTweening[curData.label] = curData.value
           }
+          let textColor = '#000'
+          if (prevData.value > curData.value) textColor = '#ff0000'
+          prevData.node.children[3].style.color = textColor
         }
         new TWEEN.Tween(fromTweening)
           .to(toTweening, this.interval * 0.99)

@@ -1,8 +1,10 @@
-file_name = 'Urban population(databank.worldbank.org).txt'
+file_name = 'CO2 emission (databank.worldbank.org).txt'
 
 f = open(file_name, 'r', encoding='utf8')
 
-result = [[] for i in range(2017-1960+1)]
+start = 1960
+end = 2014
+result = [[] for i in range(end-start+1)]
 
 first = True
 for line in f.readlines():
@@ -12,14 +14,14 @@ for line in f.readlines():
 	token = line.split('\t')
 	name = token[2]
 	code = token[3]
-	data = token[4:-2]
+	data = token[4:]
 	for i in range(len(data)):
 		value = data[i]
 		if value == '..':
 			value = '-'
 		result[i].append({
 			'label': name,
-			'value': value
+			'value': value.strip()
 		})
 f.close()
 

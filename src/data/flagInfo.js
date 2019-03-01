@@ -273,6 +273,7 @@ const labelInfo = {
   'Tuvalu': {img: 'https://www.countryflags.io/tv/flat/64.png'},
   'Uganda': {img: 'https://www.countryflags.io/ug/flat/64.png'},
   'Ukraine': {img: 'https://www.countryflags.io/ua/flat/64.png'},
+  'UAE': {img: 'https://www.countryflags.io/ae/flat/64.png'},
   'United Arab Emirates': {img: 'https://www.countryflags.io/ae/flat/64.png'},
   'UK': {img: 'https://www.countryflags.io/gb/flat/64.png'},
   'United Kingdom': {img: 'https://www.countryflags.io/gb/flat/64.png'},

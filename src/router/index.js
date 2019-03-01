@@ -3,7 +3,8 @@ import Router from 'vue-router'
 // import lifeExpectancy from '../components/LifeExpectancy.vue'
 // import urbanPopulation from '../components/UrbanPopulation'
 // import co2Emission from '../components/Co2Emission'
-import nationalIncome from '../components/AdjustedNetNationalIncome'
+// import nationalIncome from '../components/AdjustedNetNationalIncome'
+import incomePerCapita from '../components/AdjustedNetNationalIncomePerCapita'
 
 Vue.use(Router)
 
@@ -24,9 +25,13 @@ export default new Router({
     //   name: 'co2-emission',
     //   component: co2Emission
     // },
+    // {
+    //   path: '/',
+    //   component: nationalIncome
+    // },
     {
       path: '/',
-      component: nationalIncome
+      component: incomePerCapita
     }
   ]
 })

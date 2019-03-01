@@ -1,4 +1,4 @@
-file_name = 'Adjusted net national income (databank.worldbank.org).txt'
+file_name = 'Adjusted net national income per capita (databank.worldbank.org).txt'
 
 f = open(file_name, 'r', encoding='utf8')
 

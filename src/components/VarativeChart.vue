@@ -82,14 +82,15 @@ export default {
         return this.getNodeValue(n2) - this.getNodeValue(n1)
       })
       const max = this.getNodeValue(newList[0])
+      const margin = this.limit === 15 ? 55 : 70
       for (let i = 0; i < newList.length; i++) {
         const element = newList[i]
         if (i < this.limit) {
           const width = this.getWidth(this.getNodeValue(element), max)
           element.children[1].style.width = width + 'px'
-          if (width - 55 < element.children[2].children[0].offsetWidth) {
+          if (width - margin < element.children[2].children[0].offsetWidth) {
             element.children[2].children[0].children[0].style.opacity = 0
-          } else if (element.children[2].children[0].children[0].style.opacity === '0' && width - 55 >= element.children[2].children[0].offsetWidth) {
+          } else if (element.children[2].children[0].children[0].style.opacity === '0' && width - margin >= element.children[2].children[0].offsetWidth) {
             element.children[2].children[0].children[0].style.opacity = 1
           }
           if (element.style.display !== 'table') {
@@ -108,7 +109,7 @@ export default {
           }
         }
       }
-      const leftMargin = 215
+      const leftMargin = this.limit === 15 ? 215 : 285
       let start = this.scaleUnit
       if (this.scaleList.length) {
         start = this.scaleList[this.scaleList.length - 1].value + this.scaleUnit
@@ -148,7 +149,7 @@ export default {
       return div.firstElementChild
     },
     setNodeValue: function (node, value) {
-      node.children[3].innerHTML = value
+      node.children[3].innerHTML = this.numberWithCommas(value.toFixed(this.fixed))
     },
     createNode: function (data) {
       var div = document.createElement('div')
@@ -162,11 +163,11 @@ export default {
         img = 'https://banner2.kisspng.com/20171216/0a6/question-mark-png-5a352b58b02c08.4921308315134339447216.jpg'
       }
       div.innerHTML = `
-          <div id="item-id-${data.label}" class="item" style="width: 100%; display: none">
-            <div class="item-label">${data.label}</div>
-            <div class="item-bar" style="background: ${color}"></div>
-            <div class="item-icon"><div class="item-marker"><span>${data.label}</span><img src="${img}"></div></div>
-            <div class="item-value">${this.numberWithCommas(data.value.toFixed(this.fixed))}</div>
+          <div id="item-id-${data.label}" class="item limit-${this.limit}" style="width: 100%; display: none">
+            <div class="item-label limit-${this.limit}">${data.label}</div>
+            <div class="item-bar limit-${this.limit}" style="background: ${color}"></div>
+            <div class="item-icon limit-${this.limit}"><div class="item-marker"><span>${data.label}</span><img src="${img}"></div></div>
+            <div class="item-value limit-${this.limit}">${this.numberWithCommas(data.value.toFixed(this.fixed))}</div>
           </div>
       `.trim()
 
@@ -240,10 +241,10 @@ export default {
           if (curData.value !== '-') {
             if (prevData.value === this.nullNumber) {
               prevData.value = curData.value
-              this.setNodeValue(prevData.node, this.numberWithCommas(curData.value))
+              this.setNodeValue(prevData.node, Number(curData.value))
             } else {
               fromTweening[curData.label] = prevData.value
-              toTweening[curData.label] = curData.value
+              toTweening[curData.label] = Number(curData.value)
               let textColor = '#000'
               if (prevData.value > curData.value) textColor = '#ff0000'
               prevData.node.children[3].style.color = textColor
@@ -259,7 +260,7 @@ export default {
             for (const label in fromTweening) {
               const value = Number(fromTweening[label].toFixed(this.fixed))
               this.elementMap[label].value = value
-              this.setNodeValue(this.elementMap[label].node, this.numberWithCommas(value))
+              this.setNodeValue(this.elementMap[label].node, value)
             }
             this.setWidth()
           })
@@ -294,6 +295,9 @@ export default {
     text-align: right;
     padding-right: 10px;
   }
+  .item-label.limit-10 {
+    width: 265px;
+  }
   .item-bar {
     display: table-cell;
     height: 30px;
@@ -312,6 +316,15 @@ export default {
     right: 113px;
     top: 6px;
   }
+  .item-icon.limit-10 .item-marker {
+    position: absolute;
+    right: 130px;
+    top: 6px;
+  }
+  .item-icon img {
+    width: 50px;
+    position: absolute;
+  }
   .item-icon span {
     margin-right: 5px;
     line-height: 40px;
@@ -322,11 +335,18 @@ export default {
     width: 50px;
     position: absolute;
   }
+  .item-icon.limit-10 img {
+    width: 60px;
+  }
   .item {
     font-size: 30px;
     font-weight: 600;
     display: inline;
     margin: 5px;
+  }
+  .item.limit-10 {
+    margin: 15px;
+    font-size: 40px;
   }
   .year {
     position: absolute;

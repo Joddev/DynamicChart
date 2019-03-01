@@ -3,14 +3,14 @@
     <!--<img class="background" src="../assets/colorful-world.png">-->
     <div class="background"></div>
     <div class="title">
-      <h1>Top 15 Countries with Highest Net National Income ($)</h1>
+      <h1>Top 10 Net National Income per capita ($)</h1>
     </div>
     <chart v-bind="chart"></chart>
   </div>
 </template>
 
 <script>
-import stats from '../data/adjustedNetNationalIncome'
+import stats from '../data/adjustedNetNationalIncomePerCapita'
 import labelInfo from '../data/flagInfo'
 import chart from './VarativeChart.vue'
 
@@ -25,9 +25,11 @@ export default {
           for (let i = 1970; i <= 2016; i++) date.push(i)
           return date
         })(),
-        interval: 3 * 1000,
-        scale: 500000000000,
-        maximum: 16032630931702
+        interval: 8 * 1000,
+        scale: 5000,
+        maximum: 82020,
+        limit: 10,
+        fixed: 2
       }
     }
   },

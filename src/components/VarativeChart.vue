@@ -59,7 +59,8 @@ export default {
       instance: null,
       blurMap: {},
       scaleList: [],
-      scaleUnit: 1
+      scaleUnit: 1,
+      nullNumber: -12345
     }
   },
   created: function () {
@@ -74,7 +75,7 @@ export default {
       const maximum = Math.max(max, this.maximum)
       const maxWidth = 1600
       const tailWidth = 200
-      return ((cur / max) * maxWidth + (cur / maximum) * tailWidth).toFixed(2)
+      return Number(((cur / max) * maxWidth + (cur / maximum) * tailWidth).toFixed(2))
     },
     setWidth: function () {
       const newList = this.elementList.concat().sort((n1, n2) => {
@@ -88,8 +89,7 @@ export default {
           element.children[1].style.width = width + 'px'
           if (width - 55 < element.children[2].children[0].offsetWidth) {
             element.children[2].children[0].children[0].style.opacity = 0
-          }
-          if (element.children[2].children[0].children[0].style.opacity === '0' && width - 55 >= element.children[2].children[0].offsetWidth) {
+          } else if (element.children[2].children[0].children[0].style.opacity === '0' && width - 55 >= element.children[2].children[0].offsetWidth) {
             element.children[2].children[0].children[0].style.opacity = 1
           }
           if (element.style.display !== 'table') {
@@ -210,13 +210,15 @@ export default {
       this.createElement(curData)
     }
 
-    this.setWidth()
     this.instance.sort({
       by: (element) => {
         return this.getNodeValue(element)
       },
       reverse: true
     })
+    // to block initial label overflow
+    this.setWidth()
+    this.setWidth()
 
     let index = 1
     const loop = setInterval(() => {
@@ -236,12 +238,19 @@ export default {
             prevData = this.elementMap[curData.label]
           }
           if (curData.value !== '-') {
-            fromTweening[curData.label] = prevData.value
-            toTweening[curData.label] = curData.value
+            if (prevData.value === this.nullNumber) {
+              prevData.value = curData.value
+              this.setNodeValue(prevData.node, this.numberWithCommas(curData.value))
+            } else {
+              fromTweening[curData.label] = prevData.value
+              toTweening[curData.label] = curData.value
+              let textColor = '#000'
+              if (prevData.value > curData.value) textColor = '#ff0000'
+              prevData.node.children[3].style.color = textColor
+            }
+          } else {
+            prevData.value = this.nullNumber
           }
-          let textColor = '#000'
-          if (prevData.value > curData.value) textColor = '#ff0000'
-          prevData.node.children[3].style.color = textColor
         }
         new TWEEN.Tween(fromTweening)
           .to(toTweening, this.interval * 0.99)
@@ -346,6 +355,6 @@ export default {
     text-align: center;
     font-size: 20px;
     font-weight: 800;
-    color: rgba(116, 116, 116, 0.8);
+    color: #000;
   }
 </style>

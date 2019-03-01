@@ -1,9 +1,9 @@
-file_name = 'CO2 emission (databank.worldbank.org).txt'
+file_name = 'Adjusted net national income (databank.worldbank.org).txt'
 
 f = open(file_name, 'r', encoding='utf8')
 
-start = 1960
-end = 2014
+start = 1970
+end = 2016
 result = [[] for i in range(end-start+1)]
 
 first = True

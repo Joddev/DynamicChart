@@ -1,6 +1,6 @@
 <template>
   <div id="container" class="item-container" style="height: 500px">
-    <div id="year" class="year">2017</div>
+    <div id="year" class="year"></div>
   </div>
 </template>
 
@@ -50,6 +50,14 @@ export default {
     maximum: {
       type: Number,
       default: 0
+    },
+    dynamic: {
+      type: Boolean,
+      default: false
+    },
+    unit: {
+      type: String,
+      default: ''
     }
   },
   data: function () {
@@ -71,28 +79,35 @@ export default {
       const label = node.children[0].textContent
       return this.elementMap[label].value
     },
-    getWidth: function (cur, max) {
+    getWidth: function (cur, max, min) {
       const maximum = Math.max(max, this.maximum)
-      const maxWidth = 1600
-      const tailWidth = 200
-      return Number(((cur / max) * maxWidth + (cur / maximum) * tailWidth).toFixed(2))
+      const maxWidth = 1400
+      const tailWidth = 400
+      if (this.dynamic) {
+        return Number((((cur - min) / (max - min)) * maxWidth + (cur / maximum) * tailWidth).toFixed(2))
+      } else {
+        return Number(((cur / max) * maxWidth + (cur / maximum) * tailWidth).toFixed(2))
+      }
     },
     setWidth: function () {
       const newList = this.elementList.concat().sort((n1, n2) => {
         return this.getNodeValue(n2) - this.getNodeValue(n1)
       })
       const max = this.getNodeValue(newList[0])
+      const min = this.dynamic ? this.getNodeValue(newList[this.limit - 1]) * 0.9 : 0
       const margin = this.limit === 15 ? 55 : 70
       for (let i = 0; i < newList.length; i++) {
         const element = newList[i]
         if (i < this.limit) {
-          const width = this.getWidth(this.getNodeValue(element), max)
+          const width = this.getWidth(this.getNodeValue(element), max, min)
           element.children[1].style.width = width + 'px'
           if (width - margin < element.children[2].children[0].offsetWidth) {
             element.children[2].children[0].children[0].style.opacity = 0
           } else if (element.children[2].children[0].children[0].style.opacity === '0' && width - margin >= element.children[2].children[0].offsetWidth) {
             element.children[2].children[0].children[0].style.opacity = 1
           }
+          if (width < 70) element.children[2].children[0].children[1].style.opacity = 0
+          else element.children[2].children[0].children[1].style.opacity = 1
           if (element.style.display !== 'table') {
             element.style.display = 'table'
           }
@@ -131,10 +146,10 @@ export default {
       }
       for (let i = 0; i < this.scaleList.length; i++) {
         const scale = this.scaleList[i]
-        if (scale.value > max * 1.1) scale.node.style.display = 'none'
+        if (scale.value > max * 1.1 || scale.value < min) scale.node.style.display = 'none'
         else {
           scale.node.style.display = ''
-          scale.node.style.left = Number(this.getWidth(scale.value, max)) + leftMargin + 'px'
+          scale.node.style.left = Number(this.getWidth(scale.value, max, min)) + leftMargin + 'px'
         }
       }
     },
@@ -143,13 +158,13 @@ export default {
       div.innerHTML = `
         <div id="scale-${num}" class="scale">
           <div class="scale-bar"></div>
-          <div class="scale-value">${this.numberWithCommas(num)}</div>
+          <div class="scale-value">${this.numberWithCommas(num) + this.unit}</div>
         </div>
       `
       return div.firstElementChild
     },
     setNodeValue: function (node, value) {
-      node.children[3].innerHTML = this.numberWithCommas(value.toFixed(this.fixed))
+      node.children[3].innerHTML = this.numberWithCommas(value.toFixed(this.fixed)) + this.unit
     },
     createNode: function (data) {
       var div = document.createElement('div')
@@ -278,7 +293,7 @@ export default {
         },
         reverse: true
       })
-    }, 200)
+    }, 100)
   }
 }
 </script>
@@ -351,8 +366,8 @@ export default {
   .year {
     position: absolute;
     top: 800px;
-    right: 300px;
-    font-size: 100px;
+    right: 270px;
+    font-size: 120px;
     z-index: 20;
     font-weight: 600;
   }

@@ -77,6 +77,7 @@ export default {
   methods: {
     getNodeValue: function (node) {
       const label = node.children[0].textContent
+      // console.log(`${label}: ${this.elementMap[label].value}`)
       return this.elementMap[label].value
     },
     getWidth: function (cur, max, min) {
@@ -254,26 +255,28 @@ export default {
             prevData = this.elementMap[curData.label]
           }
           if (curData.value !== '-') {
+            let textColor = '#000'
+            if (prevData.value > curData.value) textColor = '#ff0000'
             if (prevData.value === this.nullNumber) {
               prevData.value = curData.value
               this.setNodeValue(prevData.node, Number(curData.value))
-            } else {
-              fromTweening[curData.label] = prevData.value
-              toTweening[curData.label] = Number(curData.value)
-              let textColor = '#000'
-              if (prevData.value > curData.value) textColor = '#ff0000'
-              prevData.node.children[3].style.color = textColor
             }
+            fromTweening[curData.label] = prevData.value
+            toTweening[curData.label] = Number(curData.value)
+            prevData.node.children[3].style.color = textColor
           } else {
             prevData.value = this.nullNumber
           }
+        }
+        for (const label in this.elementMap) {
+          if (!fromTweening[label]) this.elementMap[label].value = this.nullNumber
         }
         new TWEEN.Tween(fromTweening)
           .to(toTweening, this.interval * 0.99)
           .easing(TWEEN.Easing.Linear.None)
           .onUpdate(() => {
             for (const label in fromTweening) {
-              const value = Number(fromTweening[label].toFixed(this.fixed))
+              const value = fromTweening[label]
               this.elementMap[label].value = value
               this.setNodeValue(this.elementMap[label].node, value)
             }
@@ -293,7 +296,7 @@ export default {
         },
         reverse: true
       })
-    }, 100)
+    }, 500)
   }
 }
 </script>
@@ -366,7 +369,7 @@ export default {
   .year {
     position: absolute;
     top: 800px;
-    right: 270px;
+    right: 170px;
     font-size: 120px;
     z-index: 20;
     font-weight: 600;

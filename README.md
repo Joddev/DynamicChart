@@ -1,6 +1,6 @@
-# Variative Chart
+# Dynamic Chart
 
-Chart visualization for variative values over time
+Chart visualization for dynamic values over time
 
 ### How to run
 

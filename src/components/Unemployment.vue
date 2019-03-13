@@ -12,7 +12,7 @@
 <script>
 import stats from '../data/unemployment'
 import labelInfo from '../data/flagInfo'
-import chart from './VarativeChart.vue'
+import chart from './DynamicChart.vue'
 
 export default {
   data: function () {

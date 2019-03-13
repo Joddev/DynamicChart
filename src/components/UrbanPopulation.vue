@@ -11,7 +11,7 @@
 <script>
 import stats from '../data/urbanPopulation'
 import labelInfo from '../data/flagInfo'
-import chart from './VarativeChart.vue'
+import chart from './DynamicChart.vue'
 
 export default {
   name: 'life-expectancy',

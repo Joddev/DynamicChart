@@ -14,7 +14,7 @@
 <script>
 import { stats, maximum, dates } from '../data/aged'
 import labelInfo from '../data/flagInfo'
-import chart from './VarativeChart.vue'
+import chart from './DynamicChart.vue'
 
 export default {
   data: function () {

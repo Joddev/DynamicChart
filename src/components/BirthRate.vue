@@ -12,7 +12,7 @@
 <script>
 import { stats, dates } from '../data/birthRate'
 import labelInfo from '../data/flagInfo'
-import chart from './VarativeChart.vue'
+import chart from './DynamicChart.vue'
 
 export default {
   data: function () {

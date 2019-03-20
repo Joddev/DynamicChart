@@ -1,6 +1,13 @@
 <template>
   <div id="container" class="item-container" style="height: 500px">
     <div id="year" class="year"></div>
+    <div class="representative"></div>
+    <div class="additional">
+      <table>
+        <thead>{{additionalTitle}}</thead>
+        <tbody id="additional-info"></tbody>
+      </table>
+    </div>
   </div>
 </template>
 
@@ -58,6 +65,34 @@ export default {
     unit: {
       type: String,
       default: ''
+    },
+    tweening: {
+      type: Boolean,
+      default: true
+    },
+    additional: {
+      type: Boolean,
+      default: false
+    },
+    additionalLimit: {
+      type: Number,
+      default: 0
+    },
+    additionalTitle: {
+      type: String,
+      default: ''
+    },
+    additionalStats: {
+      type: Array,
+      default: () => []
+    },
+    additionalUnit: {
+      type: String,
+      default: ''
+    },
+    additionalCand: {
+      type: Array,
+      default: () => []
     }
   },
   data: function () {
@@ -75,6 +110,17 @@ export default {
     this.scaleUnit = this.scale
   },
   methods: {
+    setAdditionalInfo: function (list, amount) {
+      const tbody = document.getElementById('additional-info')
+      const count = tbody.childElementCount
+      const need = amount - count
+      for (let i = 0; i < need; i++) tbody.innerHTML += '<tr><td></td></tr>'
+      const rows = tbody.children
+      for (let i = 0; i < amount; i++) {
+        const label = list[i].children[0].textContent
+        rows[i].innerHTML = `<span class="additional-label">${label}:</span> ${this.elementMap[label].additional} ${this.additionalUnit}`
+      }
+    },
     getNodeValue: function (node) {
       const label = node.children[0].textContent
       // console.log(`${label}: ${this.elementMap[label].value}`)
@@ -94,9 +140,12 @@ export default {
       const newList = this.elementList.concat().sort((n1, n2) => {
         return this.getNodeValue(n2) - this.getNodeValue(n1)
       })
+      // console.log(newList)
       const max = this.getNodeValue(newList[0])
       const min = this.dynamic ? this.getNodeValue(newList[this.limit - 1]) * 0.9 : 0
       const margin = this.limit === 15 ? 55 : 70
+      document.getElementsByClassName('representative')[0].style.backgroundImage = `url('${this.labelInfo[newList[0].children[0].textContent].img}')`
+      if (this.getNodeValue(newList[0]) === this.getNodeValue(newList[1])) this.elementMap[newList[0].children[0].textContent].value += 0.001
       for (let i = 0; i < newList.length; i++) {
         const element = newList[i]
         if (i < this.limit) {
@@ -120,11 +169,12 @@ export default {
               this.blurMap[label] = setTimeout(() => {
                 element.style.display = 'none'
                 this.blurMap[label] = null
-              }, 1000)
+              }, this.tweening ? 1000 : 0)
             }
           }
         }
       }
+      if (this.additional) this.setAdditionalInfo(newList, this.additionalLimit)
       const leftMargin = this.limit === 15 ? 215 : 285
       let start = this.scaleUnit
       if (this.scaleList.length) {
@@ -196,7 +246,8 @@ export default {
         data.value = Number(Number(data.value).toFixed(this.fixed))
         this.elementMap[data.label] = {
           value: data.value,
-          node: this.createNode(data)
+          node: this.createNode(data),
+          additional: data.additional
         }
         const node = this.elementMap[data.label].node
         this.instance.element.appendChild(node)
@@ -238,56 +289,88 @@ export default {
     this.setWidth()
 
     let index = 1
-    const loop = setInterval(() => {
-      if (index < this.stats.length) {
-        document.getElementById('year').textContent = this.date[index]
-        const fromTweening = {}
-        const toTweening = {}
-        for (const i in this.stats[index]) {
-          const curData = this.stats[index][i]
-          let prevData = this.elementMap[curData.label]
-          if (typeof (prevData) === 'undefined') {
-            const initial = {
-              label: curData.label,
-              value: 0
+    setTimeout(() => {
+      const loop = setInterval(() => {
+        if (index < this.stats.length) {
+          document.getElementById('year').textContent = this.date[index]
+          if (this.tweening) {
+            const fromTweening = {}
+            const toTweening = {}
+            for (const i in this.stats[index]) {
+              const curData = this.stats[index][i]
+              let prevData = this.elementMap[curData.label]
+              if (typeof (prevData) === 'undefined') {
+                const initial = {
+                  label: curData.label,
+                  value: 0
+                }
+                this.createElement(initial)
+                prevData = this.elementMap[curData.label]
+              }
+              if (curData.value !== '-') {
+                let textColor = '#FFF'
+                if (prevData.value > curData.value) textColor = '#ff0000'
+                if (prevData.value === this.nullNumber) {
+                  prevData.value = curData.value
+                  this.setNodeValue(prevData.node, Number(curData.value))
+                }
+                fromTweening[curData.label] = prevData.value
+                toTweening[curData.label] = Number(curData.value)
+                prevData.node.children[3].style.color = textColor
+              } else {
+                prevData.value = this.nullNumber
+              }
             }
-            this.createElement(initial)
-            prevData = this.elementMap[curData.label]
-          }
-          if (curData.value !== '-') {
-            let textColor = '#000'
-            if (prevData.value > curData.value) textColor = '#ff0000'
-            if (prevData.value === this.nullNumber) {
-              prevData.value = curData.value
+            for (const label in this.elementMap) {
+              if (!fromTweening[label]) this.elementMap[label].value = this.nullNumber
+            }
+            new TWEEN.Tween(fromTweening)
+              .to(toTweening, this.interval * 0.99)
+              .easing(TWEEN.Easing.Linear.None)
+              .onUpdate(() => {
+                for (const label in fromTweening) {
+                  const value = fromTweening[label]
+                  this.elementMap[label].value = value
+                  this.setNodeValue(this.elementMap[label].node, value)
+                }
+                this.setWidth()
+              })
+              .start()
+          } else {
+            // initialize
+            for (const name in this.elementMap) {
+              this.elementMap[name].value = 0
+              this.elementMap[name].addtional = 0
+              this.setNodeValue(this.elementMap[name].node, 0)
+            }
+            for (const i in this.stats[index]) {
+              const curData = this.stats[index][i]
+              let prevData = this.elementMap[curData.label]
+              if (typeof (prevData) === 'undefined') {
+                const initial = {
+                  label: curData.label,
+                  value: 0,
+                  additional: 0
+                }
+                this.createElement(initial)
+                prevData = this.elementMap[curData.label]
+              }
+              prevData.value = Number(curData.value)
+              prevData.additional = Number(curData.additional)
               this.setNodeValue(prevData.node, Number(curData.value))
             }
-            fromTweening[curData.label] = prevData.value
-            toTweening[curData.label] = Number(curData.value)
-            prevData.node.children[3].style.color = textColor
-          } else {
-            prevData.value = this.nullNumber
-          }
-        }
-        for (const label in this.elementMap) {
-          if (!fromTweening[label]) this.elementMap[label].value = this.nullNumber
-        }
-        new TWEEN.Tween(fromTweening)
-          .to(toTweening, this.interval * 0.99)
-          .easing(TWEEN.Easing.Linear.None)
-          .onUpdate(() => {
-            for (const label in fromTweening) {
-              const value = fromTweening[label]
-              this.elementMap[label].value = value
-              this.setNodeValue(this.elementMap[label].node, value)
-            }
             this.setWidth()
-          })
-          .start()
-      } else {
-        clearInterval(loop)
-      }
-      index++
-    }, this.interval)
+          }
+          // additional
+          if (this.additionalStats.length > 0) {
+            //
+          }
+        } else {
+          clearInterval(loop)
+        }
+        index++
+      }, this.interval)
+    }, 3000)
 
     setInterval(() => {
       this.instance.sort({
@@ -296,7 +379,7 @@ export default {
         },
         reverse: true
       })
-    }, 500)
+    }, 100)
   }
 }
 </script>
@@ -368,7 +451,7 @@ export default {
   }
   .year {
     position: absolute;
-    top: 800px;
+    top: 850px;
     right: 170px;
     font-size: 120px;
     z-index: 20;
@@ -393,6 +476,5 @@ export default {
     text-align: center;
     font-size: 20px;
     font-weight: 800;
-    color: #000;
   }
 </style>

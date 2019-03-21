@@ -173,8 +173,8 @@ export default {
      */
     $_getWidth: function (cur, max, min = 0) {
       const maximum = Math.max(max, this.maximum)
-      const frontWidth = 1400
-      const backWidth = 400
+      const frontWidth = 0.65
+      const backWidth = 0.15
       if (this.dynamic) return (((cur - min) / (max - min)) * frontWidth + (cur / maximum) * backWidth)
       else return ((cur / max) * frontWidth + (cur / maximum) * backWidth)
     },
@@ -198,15 +198,15 @@ export default {
         const element = elementListSorted[i]
         if (i < this.limit) {
           const width = this.$_getWidth(this.$_getNodeValue(element), max, min)
-          this.$_getNodeBar(element).style.width = width + 'px'
+          this.$_getNodeBar(element).style.width = width * 100 + 'vw'
           // label on bar exceeds bar size
-          if (width - margin < element.children[2].children[0].offsetWidth) {
+          if (this.$_getNodeBar(element).offsetWidth - margin < element.children[2].children[0].offsetWidth) {
             this.$_getNodeLabelOnBar(element).style.opacity = 0
           } else if (this.$_getNodeLabelOnBar(element).style.opacity === '0') {
             this.$_getNodeLabelOnBar(element).style.opacity = 1
           }
           // icon on bar excceds bar size
-          if (width < 70) this.$_getNodeIconOnBar(element).style.opacity = 0
+          if (this.$_getNodeBar(element).offsetWidth < 70) this.$_getNodeIconOnBar(element).style.opacity = 0
           else this.$_getNodeIconOnBar(element).style.opacity = 1
           // set bar visible
           if (element.style.display !== 'table') element.style.display = 'table'
@@ -226,7 +226,7 @@ export default {
       }
       if (this.additional) this.setAdditionalInfo(elementListSorted, this.additionalLimit)
       // set scale
-      const leftMargin = this.limit === 15 ? 215 : 285
+      const leftMargin = 11
       const start = this.scaleList.length ? this.scaleList[this.scaleList.length - 1].value + this.scaleUnit : this.scaleUnit
       for (let value = start; value < max * 1.1; value += this.scaleUnit) {
         const element = this.$_createScale(value)
@@ -247,7 +247,7 @@ export default {
         if (scale.value > max * 1.1 || scale.value < min) scale.node.style.display = 'none'
         else {
           scale.node.style.display = ''
-          scale.node.style.left = Number(this.$_getWidth(scale.value, max, min)) + leftMargin + 'px'
+          scale.node.style.left = Number(this.$_getWidth(scale.value, max, min) * 100) + leftMargin + 'vw'
         }
       }
     },
@@ -472,95 +472,79 @@ export default {
 
 <style>
   .item-container {
-    font-family: sans-serif
+    font-family: sans-serif;
+    font-size: 1.25vw;
   }
   .item-label {
     display: table-cell;
-    width: 200px;
-    height: 30px;
-    line-height: 30px;
+    width: 10vw;
+    height: 3vw;
+    line-height: 3vw;
     text-align: right;
-    padding-right: 10px;
-  }
-  .item-label.limit-10 {
-    width: 265px;
+    padding-right: 1vw;
   }
   .item-bar {
     display: table-cell;
-    height: 30px;
+    height: 3vw;
   }
   .item-value {
     display: table-cell;
     text-align: left;
-    padding: 10px;
+    padding-left: 0.5vw;
   }
   .item-icon {
-    width: 60px;
+    width: 10vw;
+    height: 100%;
     position: absolute;
   }
   .item-icon .item-marker {
     position: absolute;
-    right: 113px;
-    top: 6px;
-  }
-  .item-icon.limit-10 .item-marker {
-    position: absolute;
-    right: 130px;
-    top: 6px;
+    width: 100%;
+    right: 135%;
+    top: 20%;
+    text-align: right;
   }
   .item-icon img {
-    width: 50px;
     position: absolute;
+    width: 3vw;
+    top: -0.6vw;
   }
   .item-icon span {
-    margin-right: 5px;
-    line-height: 40px;
+    margin-right: 0.5vw;
     white-space:nowrap;
     display: inline-block;
   }
-  .item-icon img {
-    width: 50px;
-    position: absolute;
-  }
-  .item-icon.limit-10 img {
-    width: 60px;
-  }
   .item {
-    font-size: 30px;
+    /* font-size: 4vw; */
     font-weight: 600;
     display: inline;
-    margin: 5px;
-  }
-  .item.limit-10 {
-    margin: 15px;
-    font-size: 40px;
+    margin: 0.4vw;
   }
   .year {
     position: absolute;
-    top: 850px;
-    right: 170px;
-    font-size: 120px;
+    top: 33vw;
+    left: 85vw;
+    font-size: 4vw;
     z-index: 20;
     font-weight: 600;
   }
   .scale {
     position: absolute;
-    left: 208.5px;
-    z-index: -1
+    z-index: -1;
+    font-size: 0.75vw;
   }
   .scale-bar {
     position: absolute;
-    width: 3px;
-    height: 1020px;
+    width: 0.2vw;
+    height: 38vw;
     background: rgba(171, 171, 171, 0.8);
   }
   .scale-value {
     position: absolute;
-    width: 200px;
-    left: -100px;
-    top: 1025px;
+    width: 5vw;
+    top: 38.5vw;
+    left: -2.6vw;
     text-align: center;
-    font-size: 20px;
     font-weight: 800;
   }
 </style>

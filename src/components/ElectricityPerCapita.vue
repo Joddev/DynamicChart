@@ -42,38 +42,37 @@ export default {
     color: #fff;
   }
   .back {
-    width: 2400px;
+    width: 100vw;
   }
   .background {
     position: absolute;
     left: 0%;
-    width: 85%;
+    width: 100%;
     height: 100%;
     z-index: -3;
     background-color: #000;
-    padding: 10%;
   }
   .title {
-    font-size: 40px;
+    font-size: 1.75vw;
     padding-top: 1px;
+    text-align: center;
   }
   .representative {
-    background-size: 400px;
-    width: 400px;
-    height: 400px;
+    background-size: 15vw;
+    width: 15vw;
+    height: 15vw;
     position: absolute;
-    top: 550px;
-    right: 170px;
-    font-size: 120px;
+    top: 21vw;
+    left: 81vw;
     z-index: 20;
   }
   .detail-value {
-    font-size: 30px;
+    font-size: 1vw;
     font-weight: 600;
     position: absolute;
-    left: 1950px;
-    top: 230px;
-    width: 300px;
+    left: 83vw;
+    top: 8vw;
+    width: 15vw;
     text-align: right;
   }
   .additional {

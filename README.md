@@ -26,7 +26,8 @@ visit http://localhost:8080
                             [{label: 'A', number: 3}, {label: 'B', value: 1}],
                         ]
                        :labelInfo = {
-                            'A': {img: 'image-url'}
+                            'A': {img: 'image-url', color: '#AA0000'}.
+                            'B': {img: 'image-url', color: '#0000AA'}.
                         }
                        :date = ['2019-03-01', '2019-03-02']>
     	</dynamic-chart>

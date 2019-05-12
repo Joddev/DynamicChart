@@ -3,10 +3,11 @@
     <!--<img class="background" src="../assets/colorful-world.png">-->
     <div class="background"></div>
     <div class="title">
-      <h1>Top 10 Industrial Countries (% of total employment)</h1>
+      <h1 style="font-size: 2.5vw;">TITLE</h1>
     </div>
     <!--<div class="detail-value">unit: kWh</div>-->
     <chart v-bind="chart"></chart>
+    <bar v-bind="bar"></bar>
   </div>
 </template>
 
@@ -14,6 +15,7 @@
 import { stats, maximum, dates } from '../data/result'
 import labelInfo from '../data/flagInfo'
 import chart from './DynamicChart.vue'
+import bar from './BarWithImageLeft'
 
 export default {
   data: function () {
@@ -22,30 +24,37 @@ export default {
         stats: stats,
         labelInfo: labelInfo,
         date: dates,
-        interval: 0.5 * 1000,
-        scale: 10,
+        interval: 10 * 1000,
+        scale: 100,
         maximum: maximum,
         limit: 10,
-        fixed: 2,
-        unit: '%',
-        dynamic: true
+        fixed: 0,
+        // unit: '%',
+        // dynamic: true
         // additionalStats: additionalStats,
-        // additionalCand: ['World', 'Europe area', 'East Asia & Pacific', 'North America', 'OECD members', 'European Union', 'Middle East & North Africa'],
+        // additionalCand: ['World', 'Sub-Saharan Africa', 'Euro area', 'Middle East & North Africa', 'European Union', 'East Asia & Pacific', 'Middle East & North Africa', 'North America', 'OECD members'],
         // additionalLimit: 3,
         // additionalUnit: '%'
+      },
+      bar: {
+        color: '#abcded',
+        img: 'https://www.countryflags.io/kg/flat/64.png',
+        size: 10,
+        label: 'A',
+        value: 10340
       }
     }
   },
   components: {
-    chart
+    chart, bar
   }
 }
 </script>
 
 <style>
   body {
-    text-shadow: 0 0 10px #000;
-    color: #fff;
+    text-shadow: 0 0 10px #fff;
+    color: #000;
   }
   .back {
     width: 100vw;
@@ -53,23 +62,26 @@ export default {
   .background {
     position: absolute;
     left: 0%;
-    width: 100%;
+    width: 105%;
     height: 100%;
     z-index: -3;
-    background-color: #000;
+    /*background-color: #f9f7f0;*/
   }
   .title {
     font-size: 1.75vw;
-    padding-top: 1px;
+    padding-top: 2vw;
+    padding-bottom: 2.5vw;
     text-align: center;
   }
   .representative {
-    background-size: 15vw;
-    width: 15vw;
+    background-size: contain;
+    background-position: center center;
+    background-repeat: no-repeat;
+    width: 18vw;
     height: 15vw;
     position: absolute;
-    top: 21vw;
-    left: 81vw;
+    top: 20vw;
+    left: 79vw;
     z-index: 20;
   }
   .detail-value {
@@ -83,12 +95,13 @@ export default {
   }
   .additional {
     position: absolute;
-    top: 370px;
-    left: 1915px;
-    text-align: right;
-    width: 300px;
-    font-size: 30px;
+    top: 19vw;
+    left: 80.5vw;
+    z-index: 20;
+    text-align: left;
+    width: 23vw;
     font-weight: 700;
+    font-size: 1vw;
   }
   .additional thead {
     font-size: 40px;
@@ -96,5 +109,11 @@ export default {
   }
   .additional table {
     width: 100%;
+  }
+  .item {
+    margin: 0.3vw;
+  }
+  .item-bar {
+    height: 2.5vw;
   }
 </style>

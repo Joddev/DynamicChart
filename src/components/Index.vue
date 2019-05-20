@@ -3,11 +3,10 @@
     <!--<img class="background" src="../assets/colorful-world.png">-->
     <div class="background"></div>
     <div class="title">
-      <h1 style="font-size: 2.5vw;">TITLE</h1>
+      <h1 style="font-size: 2.5vw;">Top 10 Countries by Inflation Rate</h1>
     </div>
     <!--<div class="detail-value">unit: kWh</div>-->
     <chart v-bind="chart"></chart>
-    <bar v-bind="bar"></bar>
   </div>
 </template>
 
@@ -15,7 +14,6 @@
 import { stats, maximum, dates } from '../data/result'
 import labelInfo from '../data/flagInfo'
 import chart from './DynamicChart.vue'
-import bar from './BarWithImageLeft'
 
 export default {
   data: function () {
@@ -29,7 +27,7 @@ export default {
         maximum: maximum,
         limit: 10,
         fixed: 0,
-        // unit: '%',
+        unit: '%',
         // dynamic: true
         // additionalStats: additionalStats,
         // additionalCand: ['World', 'Sub-Saharan Africa', 'Euro area', 'Middle East & North Africa', 'European Union', 'East Asia & Pacific', 'Middle East & North Africa', 'North America', 'OECD members'],
@@ -46,7 +44,7 @@ export default {
     }
   },
   components: {
-    chart, bar
+    chart
   }
 }
 </script>
@@ -65,7 +63,7 @@ export default {
     width: 105%;
     height: 100%;
     z-index: -3;
-    /*background-color: #f9f7f0;*/
+    /*background-color: #f8f9c6;*/
   }
   .title {
     font-size: 1.75vw;

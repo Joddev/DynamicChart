@@ -1,13 +1,16 @@
 <template>
   <div id="wrapper">
+    <template v-for="(scale, i) in scaleList">
+      <scale :key="'scale'+i" v-bind="scale" v-bind:unit="unit" v-bind:margin="15.3"></scale>
+    </template>
     <div id="container" class="item-container" style="height: 500px; overflow:visible;">
       <template v-if="barType == 'barWithImageLeft'">
-        <template v-for="bar in barList">
-          <barWithImageLeft :ref="'bars'" :key="bar.label" v-bind="bar"></barWithImageLeft>
+        <template v-for="(bar, i) in barList">
+          <barWithImageLeft :ref="'bars'" :key="i" v-bind="bar" v-bind:unit="unit"></barWithImageLeft>
         </template>
       </template>
       <div id="year" class="year"></div>
-      <div class="representative"></div>
+      <div class="representative" v-bind:style="{'background-image': 'url(' + representativeImg + ')'}"></div>
       <div class="additional">
         <table>
           <thead>{{additionalTitle}}</thead>
@@ -22,6 +25,7 @@
 import Shuffle from 'shufflejs'
 import TWEEN from 'tween.js'
 import barWithImageLeft from './BarWithImageLeft'
+import scale from './Scale'
 
 // Setup the animation loop.
 function animate (time) {
@@ -116,7 +120,8 @@ export default {
       instance: null,
       scaleList: [],
       scaleUnit: 1,
-      nullNumber: -123456
+      nullNumber: -123456,
+      representativeImg: ''
     }
   },
   created: function () {
@@ -128,6 +133,7 @@ export default {
       if (!(vue.label in this.$options.barDict)) {
         this.$options.barDict[vue.label] = vue
         this.instance.add([vue.$el])
+        this.$_adjustChart()
       }
     })
   },
@@ -144,73 +150,61 @@ export default {
     },
     $_getWidth: function (cur, max, min = 0) {
       const maximum = Math.max(max, this.maximum)
-      const frontWidth = 0.60
-      const backWidth = 0.15
-      if (this.dynamic) return (((cur - min) / (max - min)) * frontWidth + (cur / maximum) * backWidth) * 100
-      else return ((cur / max) * frontWidth + (cur / maximum) * backWidth) * 100
+      const frontWidth = 0.80
+      const backWidth = 0.20
+      if (this.dynamic) return (((cur - min) / (max - min)) * frontWidth + (cur / maximum) * backWidth) * 75
+      else return ((cur / max) * frontWidth + (cur / maximum) * backWidth) * 75
     },
-    $_setRepresentativeImg: function (element) {
-      if (this.labelInfo[this.$_getNodeTeam(element)]) {
-        document.getElementsByClassName('representative')[0].style.backgroundImage = `url('${this.labelInfo[this.$_getNodeLabel(element)].img}')`
-      } else {
-        document.getElementsByClassName('representative')[0].style.backgroundImage = `url('${this.labelInfo[this.$_getNodeTeam(element)].img}')`
-      }
-    },
-    $_setScale: function (max, min) {
-      const leftMargin = 11
-      const start = this.scaleList.length ? this.scaleList[this.scaleList.length - 1].value + this.scaleUnit : this.scaleUnit
-      for (let value = start; value < max * 1.1; value += this.scaleUnit) {
-        const element = this.$_createScale(value)
-        this.scaleList.push({
-          value: value,
-          node: element
-        })
-        document.getElementById('wrapper').appendChild(element)
-      }
-      if (this.scaleList.length > 8) {
-        this.scaleUnit = this.scaleUnit * 2
-        this.scaleList.forEach(scale => {
-          if (scale.value % this.scaleUnit !== 0) scale.node.remove()
-        })
-        this.scaleList = this.scaleList.filter(scale => scale.value % this.scaleUnit === 0)
-      }
-      for (const scale of this.scaleList) {
-        if (scale.value > max * 1.1 || scale.value < min) scale.node.style.display = 'none'
-        else {
-          scale.node.style.display = ''
-          scale.node.style.left = Number(this.$_getWidth(scale.value, max, min) * 100) + leftMargin + 'vw'
-        }
-      }
-    },
-    $_adjustWidth: function () {
+    $_adjustChart: function () {
       const bars = Object.values(this.$options.barDict).sort((v1, v2) => v2.value - v1.value)
       if (bars.length > 0) {
         const top = bars[0]
         const max = top.value
         const min = this.dynamic ? bars[this.limit - 1] * 0.9 : 0
 
-        // to handle the equal value problem
-        // top.value = top.value + 0.00000000000001
-        for (const [i, v] of bars.entries()) {
-          if (i < this.limit) {
-            const width = this.$_getWidth(v.value, max, min)
-            v.visible()
-            v.setWidth(width + 'vw')
-          } else {
-            v.invisible()
-          }
+        this.representativeImg = top.img
+        this.$_adjustWidth(bars, max, min)
+        this.$_adjustScale(max, min)
+      }
+    },
+    $_adjustWidth: function (bars, max, min) {
+      // to handle the equal value problem
+      // top.value = top.value + 0.00000000000001
+      for (const [i, v] of bars.entries()) {
+        if (i < this.limit) {
+          const width = this.$_getWidth(v.value, max, min)
+          v.visible()
+          v.setWidth(width + 'vw')
+        } else {
+          v.invisible()
         }
       }
     },
-    $_createScale: function (num) {
-      const div = document.createElement('div')
-      div.innerHTML = `
-        <div id="scale-${num}" class="scale">
-          <div class="scale-bar"></div>
-          <div class="scale-value">${this.$_numberWithCommas(num) + this.unit}</div>
-        </div>
-      `
-      return div.firstElementChild
+    $_adjustScale: function (max, min) {
+      const start = this.scaleList.length ? this.scaleList[this.scaleList.length - 1].value + this.scaleUnit : this.scaleUnit
+      for (let value = start; value < max * 1.1; value += this.scaleUnit) {
+        this.scaleList.push({
+          value: value,
+          left: 0
+        })
+      }
+      const cnt = this.scaleList.length
+      if (cnt > 8) {
+        this.scaleUnit = this.scaleUnit * 2
+        this.scaleList = this.scaleList.filter((_, i) => i & 1 === 0)
+      } else if (cnt < 4) {
+        this.scaleUnit = Math.round(this.scaleUnit / 2)
+        this.scaleList = this.scaleList.concat(
+          this.scaleList.map(v => ({
+            value: v.value - this.scaleUnit,
+            left: 0
+          }))
+        )
+      }
+      this.scaleList = this.scaleList.filter(v => min <= v.value && v.value <= max)
+      for (const scale of this.scaleList) {
+        scale.left = this.$_getWidth(scale.value, max, min)
+      }
     },
     $_createBar: function (data) {
       const value = parseFloat(data.value)
@@ -301,7 +295,7 @@ export default {
                 const value = before[label]
                 this.$_getBarObject(label).value = value
               }
-              this.$_adjustWidth()
+              this.$_adjustChart()
             })
             .start()
         } else {
@@ -313,10 +307,12 @@ export default {
 
     setInterval(() => {
       this.$_sortNodeBar()
+      this.$_adjustChart()
     }, 100)
   },
   components: {
-    barWithImageLeft
+    barWithImageLeft,
+    scale
   }
 }
 </script>
@@ -333,28 +329,5 @@ export default {
     font-size: 7vw;
     z-index: 20;
     font-weight: 600;
-  }
-  .scale {
-    position: absolute;
-    z-index: -1;
-    font-size: 0.75vw;
-    top: 10.5vw;
-    color: #949494;
-  }
-  .scale-bar {
-    position: absolute;
-    /*top: -51vw;*/
-    /*top: -800px;*/
-    width: 0.2vw;
-    /*height: 45vw;*/
-    height: 42vw;
-    background: rgba(171, 171, 171, 0.8);
-  }
-  .scale-value {
-    position: absolute;
-    width: 8vw;
-    left: 0.5vw;
-    text-align: left;
-    font-weight: 800;
   }
 </style>

@@ -1,5 +1,5 @@
 <template>
-  <div v-bind:id="id" class="item" v-bind:class="[size.toString()]" style="">
+  <div v-bind:id="id" class="item" v-bind:class="[size.toString()]" style="{opacity: 0}">
     <div class="item-icon">
     <img v-bind:src="img">
     </div>
@@ -22,6 +22,7 @@ export default {
     size: Number,
     label: String,
     value: Number,
+    unit: String,
     fixed: {
       type: Number,
       default: 0
@@ -32,7 +33,7 @@ export default {
       return `item-id-${this.label}`
     },
     formattedValue: function () {
-      return this.numberWithCommas(this.value.toFixed(this.fixed))
+      return this.numberWithCommas(this.value.toFixed(this.fixed)) + this.unit
     },
     imgUrl: function () {
       return `url(${this.img})`
@@ -54,12 +55,8 @@ export default {
 
 <style scoped>
   .item {
-    /* font-size: 4vw; */
     font-weight: 600;
-    /* display: inline; */
-    /*margin: 0.25vw;*/
-    /* margin: 0.5vw; */
-    /* margin-left: 10.8vw; */
+    margin-left: 11vw;
     position: relative;
     display: flex;
     flex-direction: row;
@@ -115,9 +112,9 @@ export default {
   }
   .item-icon img {
     /* position: absolute; */
-    width: auto;
+    width: 3vw;
     height: auto;
-    max-height: 3vw;
+    /*max-height: 3vw;*/
     margin: 0;
     top: 0vw;
   }

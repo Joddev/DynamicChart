@@ -3,7 +3,7 @@
     <!--<img class="background" src="../assets/colorful-world.png">-->
     <div class="background"></div>
     <div class="title">
-      <h1 style="font-size: 2.5vw;">Top 10 Countries by Inflation Rate</h1>
+      <h1 style="font-size: 2.5vw;">Title</h1>
     </div>
     <!--<div class="detail-value">unit: kWh</div>-->
     <chart v-bind="chart"></chart>
@@ -12,7 +12,7 @@
 
 <script>
 import { stats, maximum, dates } from '../data/result'
-import labelInfo from '../data/flagInfo'
+import labelInfo from '../data/indiaInfo'
 import chart from './DynamicChart.vue'
 
 export default {
@@ -23,11 +23,11 @@ export default {
         labelInfo: labelInfo,
         date: dates,
         interval: 10 * 1000,
-        scale: 100,
+        scale: 3,
         maximum: maximum,
         limit: 10,
         fixed: 0,
-        unit: '%',
+        // unit: '%',
         // dynamic: true
         // additionalStats: additionalStats,
         // additionalCand: ['World', 'Sub-Saharan Africa', 'Euro area', 'Middle East & North Africa', 'European Union', 'East Asia & Pacific', 'Middle East & North Africa', 'North America', 'OECD members'],
@@ -63,24 +63,13 @@ export default {
     width: 105%;
     height: 100%;
     z-index: -3;
-    /*background-color: #f8f9c6;*/
+    background-color: #FFF;
   }
   .title {
     font-size: 1.75vw;
     padding-top: 2vw;
     padding-bottom: 2.5vw;
     text-align: center;
-  }
-  .representative {
-    background-size: contain;
-    background-position: center center;
-    background-repeat: no-repeat;
-    width: 18vw;
-    height: 15vw;
-    position: absolute;
-    top: 20vw;
-    left: 79vw;
-    z-index: 20;
   }
   .detail-value {
     font-size: 1vw;

@@ -9,14 +9,17 @@
           <barWithImageLeft :ref="'bars'" :key="i" v-bind="bar" v-bind:unit="unit"></barWithImageLeft>
         </template>
       </template>
-      <div id="year" class="year"></div>
-      <div class="representative" v-bind:style="{'background-image': 'url(' + representativeImg + ')'}"></div>
-      <div class="additional">
-        <table>
-          <thead>{{additionalTitle}}</thead>
-          <tbody id="additional-info"></tbody>
-        </table>
-      </div>
+    </div>
+    <div id="year" class="year">
+      <div>{{ year }}</div>
+      <div class="progress" v-bind:style="{width: progressWidth}"></div>
+    </div>
+    <div class="representative" v-bind:style="{'background-image': 'url(' + representativeImg + ')'}"></div>
+    <div class="additional">
+      <table>
+        <thead>{{ additionalTitle }}</thead>
+        <tbody id="additional-info"></tbody>
+      </table>
     </div>
   </div>
 </template>
@@ -120,8 +123,15 @@ export default {
       instance: null,
       scaleList: [],
       scaleUnit: 1,
-      nullNumber: -123456,
-      representativeImg: ''
+      nullNumber: 0,
+      representativeImg: '',
+      year: 0,
+      progress: 1
+    }
+  },
+  computed: {
+    progressWidth: function () {
+      return this.progress * 100 + '%'
     }
   },
   created: function () {
@@ -138,10 +148,17 @@ export default {
     })
   },
   methods: {
+    $_charToNum: function (str) {
+      let ret = 0
+      for (let i = 0; i < Math.max(str.length, 5); i++) {
+        ret += (100 - (str.charCodeAt(i) - ' '.charCodeAt(0))) / (100 ** (i + 1))
+      }
+      return ret
+    },
     $_getBarValue: function (element) {
       const label = element.id.slice(8)
       if (this.$options.barDict[label]) {
-        return this.$options.barDict[label].value
+        return this.$options.barDict[label].value + (this.$_charToNum(label))
       } else {
         console.log(label)
         console.log(this.$options.barDict)
@@ -150,13 +167,16 @@ export default {
     },
     $_getWidth: function (cur, max, min = 0) {
       const maximum = Math.max(max, this.maximum)
-      const frontWidth = 0.80
+      const offset = 0.10
+      const frontWidth = 0.70
       const backWidth = 0.20
-      if (this.dynamic) return (((cur - min) / (max - min)) * frontWidth + (cur / maximum) * backWidth) * 75
-      else return ((cur / max) * frontWidth + (cur / maximum) * backWidth) * 75
+      if (this.dynamic) return (offset + ((cur - min) / (max - min)) * frontWidth + (cur / maximum) * backWidth) * 75
+      else return (offset + (cur / max) * frontWidth + (cur / maximum) * backWidth) * 75
     },
     $_adjustChart: function () {
-      const bars = Object.values(this.$options.barDict).sort((v1, v2) => v2.value - v1.value)
+      const bars = Object.values(this.$options.barDict).sort((v1, v2) => {
+        return (v2.value + this.$_charToNum(v2.label)) - (v1.value + this.$_charToNum(v1.label))
+      })
       if (bars.length > 0) {
         const top = bars[0]
         const max = top.value
@@ -173,6 +193,8 @@ export default {
       for (const [i, v] of bars.entries()) {
         if (i < this.limit) {
           const width = this.$_getWidth(v.value, max, min)
+          const dict = this.$_getBarObject(v.label)
+          if (dict.value === parseInt(dict.value)) dict.value += 0.0001
           v.visible()
           v.setWidth(width + 'vw')
         } else {
@@ -216,7 +238,8 @@ export default {
           color: color,
           img: img,
           size: 10,
-          fixed: this.fixed
+          fixed: this.fixed,
+          team: data.team
         }
         this.barList.push(bar)
       }
@@ -236,7 +259,6 @@ export default {
       this.instance.sort({
         by: (element) => {
           return this.$_getBarValue(element)
-          // return this.$_getNodeValue(element)
         },
         reverse: true
       })
@@ -251,7 +273,7 @@ export default {
       speed: this.shuffleSpeed
     })
     // set initial data
-    document.getElementById('year').textContent = this.date[0]
+    this.year = this.date[0]
     for (const i in this.stats[0]) {
       const curData = this.stats[0][i]
       curData.value = Number(curData.value)
@@ -264,10 +286,11 @@ export default {
     setTimeout(() => {
       const loop = setInterval(() => {
         if (index < this.stats.length) {
-          document.getElementById('year').textContent = this.date[index]
+          this.year = this.date[index]
           const before = {}
           const after = {}
-          for (const stat of this.stats[index]) {
+          for (const [i, stat] of this.stats[index].entries()) {
+            if (i >= 10) break
             let prevData = this.$options.barDict[stat.label]
             if (!prevData) {
               prevData = {
@@ -280,20 +303,26 @@ export default {
             before[stat.label] = prevData.value
             after[stat.label] = parseFloat(stat.value) || 0
           }
-          for (const label in this.$options.barDict) {
-            if (before[label] === undefined) {
-              before[label] = this.$options.barDict[label].value
-              after[label] = 0
-              this.$_getBarObject(label).value = 0
-            }
-          }
+          // for (const label in this.$options.barDict) {
+          //   if (before[label] === undefined) {
+          //     before[label] = this.$options.barDict[label].value
+          //     after[label] = 0
+          //     this.$_getBarObject(label).value = 0
+          //   }
+          // }
+          before['progress'] = 0
+          after['progress'] = 1
           new TWEEN.Tween(before)
             .to(after, this.interval * 0.99)
             .easing(TWEEN.Easing.Linear.None)
             .onUpdate(() => {
               for (const label in before) {
-                const value = before[label]
-                this.$_getBarObject(label).value = value
+                if (label === 'progress') {
+                  this.progress = before['progress']
+                } else {
+                  const value = before[label]
+                  this.$_getBarObject(label).value = value
+                }
               }
               this.$_adjustChart()
             })
@@ -324,10 +353,26 @@ export default {
   }
   .year {
     position: absolute;
-    top: 33vw;
+    top: 43vw;
     left: 80vw;
     font-size: 7vw;
     z-index: 20;
     font-weight: 600;
+  }
+  .year .progress {
+    height: 1vw;
+    background: black;
+    margin-top: -1vw;
+  }
+  .representative {
+    background-size: contain;
+    background-position: center bottom;
+    background-repeat: no-repeat;
+    width: 18vw;
+    height: 15vw;
+    position: absolute;
+    top: 29.5vw;
+    left: 79vw;
+    z-index: 20;
   }
 </style>

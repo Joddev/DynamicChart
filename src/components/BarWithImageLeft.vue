@@ -1,10 +1,12 @@
 <template>
   <div v-bind:id="id" class="item" v-bind:class="[size.toString()]" style="{opacity: 0}">
     <div class="item-icon">
-    <img v-bind:src="img">
+      <!--{{ team }}-->
+      <!--<img v-bind:src="img">-->
     </div>
     <div class="item-bar" v-bind:style="{background: color}">
       <span class="item-label">{{ label }}</span>
+      <span class="team-label">{{ team }}</span>
     </div>
     <div class="item-value">{{ formattedValue }}</div>
   </div>
@@ -23,6 +25,7 @@ export default {
     label: String,
     value: Number,
     unit: String,
+    team: String,
     fixed: {
       type: Number,
       default: 0
@@ -61,8 +64,18 @@ export default {
     display: flex;
     flex-direction: row;
   }
+  .team-label {
+    display: block;
+    float: left;
+    text-align: left;
+    line-height: 3vw;
+    margin-left: 1vw;
+    color: #FFF;
+    text-shadow: 0 0 10px #000;
+    /*width:100%;*/
+  }
   .item-label {
-    width: 100%;
+    /*width: 100%;*/
     height: 3vw;
     line-height: 3vw;
     /*height: 2.5vw;*/
@@ -89,7 +102,7 @@ export default {
     /*line-height: 2.5vw;*/
   }
   .item-icon {
-    /* width: 3vw; */
+     width: 3vw;
     /* height: 3vw; */
     /* background-size: contain; */
     /* background-repeat: no-repeat; */
